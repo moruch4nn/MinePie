@@ -21,22 +21,27 @@ import org.bukkit.plugin.Plugin
 class CustomGui(private val plugin: Plugin, private val size: Int, private val title: String, val startX: Int, val startY: Int, val endX: Int, val endY: Int, runnable: CustomGui.()->Unit = {}) {
     private val inventory: Inventory
     private val actionItems: MutableList<ActionItem> = mutableListOf()
+    private val contents = mutableListOf<ItemStack>()
 
     /**
      * アクションアイテムを追加します。start..endの範囲内に収まります。
      */
     fun addItem(itemStack: ItemStack, runnable: ActionItem.() -> Unit = {}) {
         ActionItem(itemStack).also {
-            runnable.invoke(it)
             actionItems.add(it)
-            inventory.addItem(itemStack)
+            contents.add(it.itemStack)
+            runnable.invoke(it)
         }
     }
 
     fun setItem(itemStack: ItemStack, x: Int, y: Int, runnable: ActionItem.() -> Unit = {}) {
         ActionItem(itemStack).also {
-            runnable.invoke(it)
+            actionItems.filter { item -> item.itemStack==inventory.getItem(x+(y*9)) }.also { item ->
+                if(item.size==1) { actionItems.remove(item[0]) }
+            }
+            actionItems.add(it)
             inventory.setItem(x+(y*9), itemStack)
+            runnable.invoke(it)
         }
     }
 

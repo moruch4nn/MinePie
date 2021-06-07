@@ -19,7 +19,7 @@ import org.bukkit.plugin.Plugin
  * @param endY addItemをし(ry
  * @param runnable 任意:処理を記述してください
  */
-class CustomGui(private val plugin: Plugin, private val size: Int, private val title: String, val startX: Int, val startY: Int, val endX: Int, val endY: Int, runnable: CustomGui.()->Unit = {}) {
+class CustomGui(private val plugin: Plugin, private val size: Int, private val title: String, val startX: Int, val startY: Int, val endX: Int, val endY: Int, val isSync: Boolean = false, runnable: CustomGui.()->Unit = {}) {
     private val inventory: Inventory
     private val actionItems: MutableList<ActionItem> = mutableListOf()
     private val contents = mutableListOf<ItemStack>()
@@ -119,7 +119,7 @@ class CustomGui(private val plugin: Plugin, private val size: Int, private val t
             }
             actionItems.add(it)
             if(x in startX..endX && y in startY..endX) { inventory.getItem(x+(y*9))?:spaceSize.dec() }
-            inventory.setItem(x+(y*9), itemStack)
+            inventory.setItem(x+(y*9), itemStack.clone())
             runnable.invoke(it)
         }
     }
@@ -138,7 +138,9 @@ class CustomGui(private val plugin: Plugin, private val size: Int, private val t
      * インベントリを開きます。
      */
     fun open(player: Player, page: Int = 1) {
-        
+        val result = Bukkit.createInventory(null, (size+1)*9, title)
+        result.contents = inventory.contents.map(ItemStack::clone).toTypedArray()
+
     }
 
     /**
@@ -158,7 +160,10 @@ class CustomGui(private val plugin: Plugin, private val size: Int, private val t
 
     companion object {
         fun Plugin.createCustomGui(size: Int, title: String, runnable: CustomGui.() -> Unit = {}): CustomGui {
-            return CustomGui(this, size, title, 0, 0, 8, 5, runnable)
+            return CustomGui(this, size, title, 0, 0, 8, 5, false, runnable)
+        }
+        fun Plugin.createSyncCustomGui(size: Int, title: String, runnable: CustomGui.() -> Unit = {}): CustomGui {
+            return CustomGui(this, size, title, 0, 0, 8, 5, true, runnable)
         }
     }
 }

@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack
 class ActionItem(val itemStack: ItemStack) {
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
 
+    var isAllowGet = false
+
     fun ClickType.addAction(runnable: (CustomGuiClickEvent)->Unit) {
         actions[this] = runnable
     }

@@ -47,9 +47,12 @@ class CustomGui(private val plugin: Plugin, private val size: Int, private val t
 
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
-        actionItems.forEach { actionItem ->
-            actionItem.getActions().filterKeys(event.click::equals).values.forEach { it.invoke(event.asCustomGuiClickEvent(this)) }
-        }
+        if(event.view.topInventory!=inventory) { return }
+        actionItems.filter { it.itemStack.equals(event.currentItem) }.forEach { actionItem ->
+            if(actionItem.isAllowGet) { event.isCancelled = true }
+            actionItem.getActions().filterKeys(event.click::equals).values.forEach {
+                it.invoke(event.asCustomGuiClickEvent(this))
+            } }
     }
 
 

@@ -11,14 +11,23 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelPromise
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.plugin.java.JavaPlugin
 
-class PacketCenter: IgnoreRunnable, Listener {
+class PacketCenter(val main: JavaPlugin): IgnoreRunnable, Listener {
     init {
         Bukkit.getOnlinePlayers().forEach(this::createNewPipeline)
+        Bukkit.getPluginManager().registerEvents(this, main)
     }
 
     private fun createNewPipeline(player: Player) { player.createNewPipeline() }
+
+    @EventHandler
+    fun onJoin(event: PlayerJoinEvent) {
+        event.player.createNewPipeline()
+    }
 
     fun Player.createNewPipeline(): Boolean {
         return Runnable {
@@ -33,12 +42,14 @@ class PacketCenter: IgnoreRunnable, Listener {
                 }
 
                 override fun write(ctx: ChannelHandlerContext?, packet: Any?, promise: ChannelPromise?) {
-                    if(packet!=null) {
-                        val event = AsyncPacketWriteEvent(this@createNewPipeline, packet)
-                        Bukkit.getPluginManager().callEvent(event)
-                        if(event.isCancelled) { return }
-                    }
-                    super.write(ctx, packet, promise)
+                    Bukkit.getScheduler().runTaskAsynchronously(main, Runnable s@{
+                        if(packet!=null) {
+                            val event = AsyncPacketWriteEvent(this@createNewPipeline, packet)
+                            Bukkit.getPluginManager().callEvent(event)
+                            if(event.isCancelled) { return@s }
+                        }
+                        super.write(ctx, packet, promise)
+                    })
                 }
             }
             this.asNmsPlayer()

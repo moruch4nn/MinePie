@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack
 
 class ActionItem(val itemStack: ItemStack) {
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
+    val addDate = System.nanoTime()
 
     var isAllowGet = false
 

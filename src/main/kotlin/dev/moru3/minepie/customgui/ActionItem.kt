@@ -5,7 +5,9 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 
 class ActionItem(val itemStack: ItemStack) {
+
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
+
     var addDate: Long = System.nanoTime()
     private set
 
@@ -27,10 +29,14 @@ class ActionItem(val itemStack: ItemStack) {
         this.slot = slot
     }
 
+    constructor(itemStack: ItemStack, addDate: Long = System.nanoTime(), slot: Int? = null, actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit>):
+            this(itemStack, addDate, slot) {
+                actions.forEach(this.actions::put)
+            }
+
+
     fun clone(): ActionItem {
-        val actionItem = ActionItem(itemStack, addDate, slot).apply {
-            actions.forEach { it.key.addAction(it.value) }
-        }
+        val actionItem = ActionItem(itemStack = itemStack, addDate = addDate, slot = slot, actions = actions)
         actionItem.isAllowGet = isAllowGet
         return actionItem
     }

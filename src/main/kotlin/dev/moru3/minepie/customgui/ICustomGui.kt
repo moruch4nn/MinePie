@@ -20,12 +20,20 @@ interface ICustomGui<T> {
      */
     fun removeItem(itemStack: ItemStack): T
 
+    /**
+     * アイテムを削除します。
+     */
     fun removeItem(x: Int, y: Int): T
 
     /**
      * 指定した場所にアイテムを配置します。
      */
-    fun setItem(itemStack: ItemStack, x: Int, y: Int, runnable: ActionItem.() -> Unit = {}): T
+    fun setItem(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit = {}): T
+
+    /**
+     * 指定した場所にアクションアイテムを配置します。
+     */
+    fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit = {}): T
 
     /**
      * 指定された位置のActionItemを返します。
@@ -41,6 +49,11 @@ interface ICustomGui<T> {
      * インベントリを開きます。
      */
     fun open(player: Player)
+
+    /**
+     * CustomInventoryをClone(non-deep)します。
+     */
+    fun clone(): T
 
     enum class SortType {
         AMOUNT,

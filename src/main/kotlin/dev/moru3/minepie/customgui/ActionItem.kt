@@ -6,7 +6,11 @@ import org.bukkit.inventory.ItemStack
 
 class ActionItem(val itemStack: ItemStack) {
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
-    val addDate = System.nanoTime()
+    var addDate: Long = System.nanoTime()
+    private set
+
+    var slot: Int? = null
+    private set
 
     var isAllowGet = false
 
@@ -15,5 +19,19 @@ class ActionItem(val itemStack: ItemStack) {
     }
     fun getActions(): Map<ClickType, (CustomGuiClickEvent)->Unit> {
         return actions.toMap()
+    }
+
+    constructor(itemStack: ItemStack, addDate: Long = System.nanoTime()) : this(itemStack) { this.addDate = addDate }
+
+    constructor(itemStack: ItemStack, addDate: Long = System.nanoTime(), slot: Int?): this(itemStack, addDate) {
+        this.slot = slot
+    }
+
+    fun clone(): ActionItem {
+        val actionItem = ActionItem(itemStack, addDate, slot).apply {
+            actions.forEach { it.key.addAction(it.value) }
+        }
+        actionItem.isAllowGet = isAllowGet
+        return actionItem
     }
 }

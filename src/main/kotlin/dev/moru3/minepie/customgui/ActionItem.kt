@@ -4,7 +4,7 @@ import dev.moru3.minepie.events.CustomGuiClickEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 
-class ActionItem(val itemStack: ItemStack) {
+open class ActionItem(val itemStack: ItemStack) {
 
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
 
@@ -16,9 +16,10 @@ class ActionItem(val itemStack: ItemStack) {
 
     var isAllowGet = false
 
-    fun ClickType.addAction(runnable: (CustomGuiClickEvent)->Unit) {
-        actions[this] = runnable
+    fun addAction(clickType: ClickType, runnable: (CustomGuiClickEvent)->Unit) {
+        actions[clickType] = runnable
     }
+
     fun getActions(): Map<ClickType, (CustomGuiClickEvent)->Unit> {
         return actions.toMap()
     }
@@ -34,9 +35,8 @@ class ActionItem(val itemStack: ItemStack) {
                 actions.forEach(this.actions::put)
             }
 
-
     fun clone(): ActionItem {
-        val actionItem = ActionItem(itemStack = itemStack, addDate = addDate, slot = slot, actions = actions)
+        val actionItem = ActionItem(itemStack = itemStack.clone(), addDate = addDate, slot = slot, actions = actions)
         actionItem.isAllowGet = isAllowGet
         return actionItem
     }

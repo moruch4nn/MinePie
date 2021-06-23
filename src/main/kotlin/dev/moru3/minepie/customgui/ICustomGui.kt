@@ -4,7 +4,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-interface ICustomGui<T> {
+interface ICustomGui {
 
     val title: String
     val size: Int
@@ -18,32 +18,37 @@ interface ICustomGui<T> {
      * @param limit 削除するアイテムのリミットを設定します。
      * @param sortType アイテムをソートしてから削除します。
      */
-    fun removeItem(itemStack: ItemStack): T
+    fun removeItem(itemStack: ItemStack)
 
     /**
      * アイテムを削除します。
      */
-    fun removeItem(x: Int, y: Int): T
+    fun removeItem(x: Int, y: Int)
 
     /**
      * 指定した場所にアイテムを配置します。
      */
-    fun setItem(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit = {}): T
+    fun setItem(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit = {})
 
     /**
      * 指定した場所にアクションアイテムを配置します。
      */
-    fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit = {}): T
+    fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit = {})
 
     /**
      * 指定された位置のActionItemを返します。
      */
-    fun getItem(x: Int, y: Int, runnable: ActionItem.() -> Unit = {}): ActionItem?
+    fun getItem(x: Int, y: Int, runnable: ActionItem?.() -> Unit = {}): ActionItem?
 
     /**
-     * 今までに設定したCustomGuiをorg.bukkit.inventory.Inventoryで返します。
+     * 今までに設定したCustomGuiをCloneしてorg.bukkit.inventory.Inventoryで返します。
      */
     fun asInventory(): Inventory
+
+    /**
+     * 今までに設定したCustomGuiをCloneせずにorg.bukkit.inventory.Inventoryで返します。
+     */
+    fun asRawInventory(): Inventory
 
     /**
      * インベントリを開きます。
@@ -53,7 +58,12 @@ interface ICustomGui<T> {
     /**
      * CustomInventoryをClone(non-deep)します。
      */
-    fun clone(): T
+    fun clone(): ICustomGui
+
+    /**
+     * GUIの内容を別のCustomGuiに置き換えます。
+     */
+    fun replace(iCustomGui: ICustomGui)
 
     enum class SortType {
         AMOUNT,

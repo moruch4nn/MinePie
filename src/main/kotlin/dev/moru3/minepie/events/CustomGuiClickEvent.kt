@@ -1,6 +1,5 @@
 package dev.moru3.minepie.events
 
-import dev.moru3.minepie.customgui.CustomContentsGui
 import dev.moru3.minepie.customgui.ICustomGui
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryAction

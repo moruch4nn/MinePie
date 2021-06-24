@@ -57,16 +57,15 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         if(y !in 0..size) { throw IndexOutOfBoundsException("size is not in the range of (0..$size).") }
         removeItem(x, y)
         if(itemStack!=null) {
-            ActionItem(itemStack, slot = x + (y * 9)).also {
-                actionItems.add(it)
-                inventory.setItem(x + (y * 9), itemStack.clone())
-                runnable.invoke(it)
-            }
+            ActionItem(itemStack, slot = x + (y * 9))
+                .also(actionItems::add)
+                .also { inventory.setItem(x + (y * 9), itemStack.clone()) }
+                .also(runnable::invoke)
         }
     }
 
     override fun getItem(x: Int, y: Int, runnable: ActionItem?.() -> Unit): ActionItem? {
-        return actionItems.filter { it.slot==x*(y*9) }.let { if(it.isEmpty()) null else it.first() }.also { runnable.invoke(it) }
+        return actionItems.filter { it.slot==x*(y*9) }.let { if(it.isEmpty()) null else it.first() }.also(runnable::invoke)
     }
 
     override fun removeItem(x: Int, y: Int) {

@@ -3,10 +3,10 @@ package dev.moru3.minepie.customgui.inventory
 import dev.moru3.minepie.customgui.ActionItem
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import dev.moru3.minepie.utils.Utils.Companion.isNull
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.*
 
 /**
  * @param plugin JavaPluginを入れてください。
@@ -22,17 +22,14 @@ open class CustomContentsGui(plugin: JavaPlugin, size: Int, title: String, priva
     private val contents = mutableListOf<ActionItem>()
 
     var page = 1
-    private set
+        private set
 
-    fun addContents(itemStack: ItemStack, runnable: ActionItem.() -> Unit = {}): CustomContentsGui {
-        ActionItem(itemStack.clone()).also {
-            contents.add(it)
-            runnable.invoke(it)
-        }
+    open fun addContents(itemStack: ItemStack, runnable: ActionItem.() -> Unit = {}): CustomContentsGui {
+        ActionItem(itemStack.clone()).also(contents::add).also(runnable::invoke)
         return this
     }
 
-    fun addContents(actionItem: ActionItem, runnable: ActionItem.() -> Unit = {}): CustomContentsGui {
+    open fun addContents(actionItem: ActionItem, runnable: ActionItem.() -> Unit = {}): CustomContentsGui {
         addContents(actionItem.itemStack.clone()) {
             actionItem.getActions().forEach(this::addAction)
             runnable.invoke(this)
@@ -46,7 +43,7 @@ open class CustomContentsGui(plugin: JavaPlugin, size: Int, title: String, priva
     }
 
     fun removeContents(actionItem: ActionItem): Int {
-        val contentsAmount = contents.count { it==actionItem }
+        val contentsAmount = contents.count(actionItem::equals)
         contents.remove(actionItem)
         return contentsAmount
     }
@@ -66,10 +63,10 @@ open class CustomContentsGui(plugin: JavaPlugin, size: Int, title: String, priva
     }
 
     override fun open(player: Player) {
-        open(player, page)
+        open(player, page, SORT_BY_DISPLAY_NAME)
     }
 
-    fun open(player: Player, page: Int) {
+    fun <T> open(player: Player, page: Int, sort: (ActionItem)->Comparable<T>?) {
         val customSyncGui = super.clone()
         val slots = mutableListOf<Int>()
         for(x in startX..endX) { for(y in startY..endY) { customSyncGui.getItem(x, y).isNull { slots.add(x+(y*9)) } } }
@@ -77,7 +74,8 @@ open class CustomContentsGui(plugin: JavaPlugin, size: Int, title: String, priva
             customSyncGui.open(player)
         } else {
             contents.size/slots.size
-            slots.forEachIndexed { index, slot -> customSyncGui.setItem(slot%9, slot/9, contents[index+(page-1)]) }
+            val sortedContents = contents.sortedWith(compareBy(sort::invoke))
+            slots.forEachIndexed { index, slot -> customSyncGui.setItem(slot%9, slot/9, sortedContents[index+(page-1)]) }
             customSyncGui.open(player)
         }
     }
@@ -99,6 +97,11 @@ open class CustomContentsGui(plugin: JavaPlugin, size: Int, title: String, priva
     }
 
     companion object {
+
+        val SORT_BY_DISPLAY_NAME: (ActionItem)->Comparable<String>? = { it.itemStack.itemMeta.displayName?:it.itemStack.type.toString() }
+        val SORT_BY_DATE: (ActionItem)->Comparable<Date>? = { it.addDate }
+        val SORT_BY_AMOUNT: (ActionItem)->Comparable<Int>? = {it.itemStack.amount}
+
         fun JavaPlugin.createCustomContentsGui(size: Int, title: String, startX: Int, startY: Int, endX: Int, endY: Int, runnable: CustomContentsGui.() -> Unit = {}): CustomContentsGui {
             return CustomContentsGui(this, size, title, startX, startY, endX, endY, runnable)
         }

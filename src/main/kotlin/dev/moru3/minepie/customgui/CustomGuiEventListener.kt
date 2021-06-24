@@ -23,7 +23,7 @@ class CustomGuiEventListener: Listener {
             EventRegister(javaPlugin) {
                 register { event: InventoryClickEvent -> listeners[javaPlugin]?.forEach { it.onInventoryClick(event) } }
                 register { event: PlayerQuitEvent -> listeners[javaPlugin]?.forEach { it.onPlayerQuit(event) } }
-                register { event: InventoryCloseEvent -> listeners[javaPlugin]?.forEach { it.onInventoryClose(event) }}
+                register { event: InventoryCloseEvent -> listeners[javaPlugin]?.forEach { it.onInventoryClose(event) } }
             }
         }
 

@@ -1,6 +1,7 @@
 package dev.moru3.minepie.customgui
 
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
@@ -64,6 +65,8 @@ interface ICustomGui {
      * GUIの内容を別のCustomGuiに置き換えます。
      */
     fun replace(iCustomGui: ICustomGui)
+
+    fun onClose(event: InventoryCloseEvent)
 
     enum class SortType {
         AMOUNT,

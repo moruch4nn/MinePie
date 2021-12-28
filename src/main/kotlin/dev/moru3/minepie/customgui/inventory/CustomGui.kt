@@ -1,9 +1,6 @@
 package dev.moru3.minepie.customgui.inventory
 
-import dev.moru3.minepie.customgui.ActionItem
-import dev.moru3.minepie.customgui.CustomGuiEventListener
-import dev.moru3.minepie.customgui.CustomGuiEvents
-import dev.moru3.minepie.customgui.ICustomGui
+import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Bukkit
@@ -22,6 +19,14 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     protected val inventory: Inventory
 
     protected val actionItems: MutableList<ActionItem> = mutableListOf()
+
+    protected val closeProcesses = mutableListOf<(InventoryCloseEvent)->Unit>()
+
+    final override val uniqueInventoryHolder: UniqueInventoryHolder = UniqueInventoryHolder(null)
+
+    override fun addCloseListener(process: (InventoryCloseEvent) -> Unit) { closeProcesses.add(process) }
+
+
 
     override fun clone(): CustomGui {
         val customGui = CustomGui(plugin, title, size, runnable)
@@ -75,7 +80,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     }
 
     override fun asInventory(): Inventory {
-        val result = Bukkit.createInventory(null, (size+1)*9, title)
+        val result = Bukkit.createInventory(UniqueInventoryHolder(null), (size+1)*9, title)
         result.contents = inventory.contents.map { it?.clone() }.toTypedArray()
         return result
     }
@@ -92,7 +97,9 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         }
     }
 
-    override fun onClose(event: InventoryCloseEvent) { }
+    override fun onClose(event: InventoryCloseEvent) {
+        closeProcesses.forEach { it.invoke(event) }
+    }
 
     override fun open(player: Player) {
         val gui = this.clone()
@@ -100,17 +107,15 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
 
         val listener = object: CustomGuiEvents() {
             override val javaPlugin = plugin
-
+            override val uniqueInventoryHolder: UniqueInventoryHolder = gui.uniqueInventoryHolder
             override fun onInventoryClick(event: InventoryClickEvent) {
-                if(event.whoClicked==player&&event.view.topInventory==gui.asRawInventory()) {
-                    gui.actionItems.filter { it.slot==event.slot }
-                        .filter { it.itemStack==event.currentItem }.forEach { actionItem ->
-                            if(!actionItem.isAllowGet) { event.isCancelled = true }
-                            actionItem.getActions().filter { it.key==event.click }.forEach {
-                                it.value.invoke(event.asCustomGuiClickEvent(gui))
-                            }
+                gui.actionItems.filter { it.slot==event.slot }
+                    .filter { it.itemStack==event.currentItem }.forEach { actionItem ->
+                        if(!actionItem.isAllowGet) { event.isCancelled = true }
+                        actionItem.getActions().filter { it.key==event.click }.forEach {
+                            it.value.invoke(event.asCustomGuiClickEvent(gui))
                         }
-                }
+                    }
             }
 
             override fun onInventoryClose(event: InventoryCloseEvent) {
@@ -126,7 +131,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
      */
     init {
         if(size !in 0..5) { throw IllegalArgumentException("size is not in the range of (0..5).") }
-        inventory = Bukkit.createInventory(null, (size+1)*9, title)
+        inventory = Bukkit.createInventory(uniqueInventoryHolder, (size+1)*9, title)
         Runnable {
             runnable.invoke(this)
         }.ignoreException()

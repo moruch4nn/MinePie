@@ -10,6 +10,8 @@ interface ICustomGui {
     val title: String
     val size: Int
 
+    val uniqueInventoryHolder: UniqueInventoryHolder
+
     val isSync: Boolean
 
     /**
@@ -20,6 +22,8 @@ interface ICustomGui {
      * @param sortType アイテムをソートしてから削除します。
      */
     fun removeItem(itemStack: ItemStack)
+
+    fun addCloseListener(process: (InventoryCloseEvent)->Unit)
 
     /**
      * アイテムを削除します。

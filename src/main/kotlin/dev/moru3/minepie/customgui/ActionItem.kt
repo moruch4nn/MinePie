@@ -5,7 +5,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-open class ActionItem(val itemStack: ItemStack) {
+open class ActionItem(val itemStack: ItemStack): ItemStack(itemStack) {
 
     private val actions: MutableMap<ClickType, (CustomGuiClickEvent)->Unit> = mutableMapOf()
 
@@ -36,7 +36,7 @@ open class ActionItem(val itemStack: ItemStack) {
                 actions.forEach(this.actions::put)
             }
 
-    fun clone(): ActionItem {
+    override fun clone(): ActionItem {
         val actionItem = ActionItem(itemStack = itemStack.clone(), addDate = addDate, slot = slot, actions = actions)
         actionItem.isAllowGet = isAllowGet
         return actionItem

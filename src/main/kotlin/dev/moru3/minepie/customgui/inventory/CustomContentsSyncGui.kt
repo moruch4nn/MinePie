@@ -1,10 +1,14 @@
 package dev.moru3.minepie.customgui.inventory
 
-import dev.moru3.minepie.customgui.ActionItem
-import dev.moru3.minepie.customgui.ICustomGui
+import dev.moru3.minepie.customgui.*
+import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import dev.moru3.minepie.utils.Utils.Companion.isNull
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
@@ -22,6 +26,8 @@ import java.util.*
 open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, private val startX: Int, private val startY: Int, private val endX: Int, private val endY: Int, private val runnable: CustomContentsSyncGui.() -> Unit = {}): CustomGui(plugin, title, size) {
     private val contents = mutableListOf<ActionItem>()
     private val openInventory = super.asInventory()
+    private val openInventoryHolder = openInventory.holder as UniqueInventoryHolder
+    private var isSingleton = true
 
     var page = 1
         private set
@@ -58,6 +64,10 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
         return this
     }
 
+    fun setAutoClose(bool: Boolean) {
+        isSingleton = bool
+    }
+
     open fun addContents(actionItem: ActionItem, update: Boolean = true, runnable: ActionItem.() -> Unit = {}): CustomContentsSyncGui {
         addContents(actionItem.itemStack.clone()) {
             actionItem.getActions().forEach(this::addAction)
@@ -68,22 +78,34 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     }
 
     private fun update(page: Int? = null) {
-        page?.also { this.page = it }
         var index: Int = 0
-        for(x in startX..endX) { for(y in startY..endY) { if(inventory.getItem(x+(y*9))==null) { index++ } } }
-        if(this.page != 1) { if(contents.size<index) { update(this.page - 1) } }
-        openInventory.contents = inventory.contents
-        for(x in startX..endX) { for(y in startY..endY) {
-            if(contents.size < index) { break }
-            openInventory.setItem(x+(y*9), contents.getOrNull(x+(y*9))?.itemStack?:continue)
-            index++
+        val indexes = mutableListOf<Int>()
+        for(y in startY..endY) { for(x in startX..endX) {
+            if(inventory.getItem(x+(y*9))==null) {
+                indexes.add(x+(y*9))
+                index++
+            }
         } }
+        page?.also { this.page = minOf(maxOf(it,1),this.contents.size/index) }
+        val contents = this.contents.subList((this.page-1)*index,this.contents.size-1)
+        openInventory.contents = inventory.contents
+        indexes.forEachIndexed { index2, i ->
+            openInventory.setItem(i,contents.getOrNull(index2)?:return@forEachIndexed)
+        }
     }
 
     fun replaceContents(old: ItemStack, new: ItemStack, runnable: ActionItem.() -> Unit = {}): CustomContentsSyncGui {
         repeat(removeContents(old)) { addContents(new, false, runnable::invoke) }
         update()
         return this
+    }
+
+    fun next() {
+        update(page+1)
+    }
+
+    fun back() {
+        update(page-1)
     }
 
     fun removeContents(actionItem: ActionItem, update: Boolean = true): Int {
@@ -116,6 +138,29 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
         this.sort = sort
         update(page)
         player.openInventory(openInventory)
+        val listener = object: CustomGuiEvents() {
+            override val uniqueInventoryHolder: UniqueInventoryHolder = openInventoryHolder
+            override val javaPlugin = plugin
+            override fun onInventoryClick(event: InventoryClickEvent) {
+                this@CustomContentsSyncGui.actionItems.filter { it.slot == event.slot }
+                    .filter { it.itemStack == event.currentItem }.forEach { actionItem ->
+                        if (!actionItem.isAllowGet) {
+                            event.isCancelled = true
+                        }
+                        actionItem.getActions().filter { it.key == event.click }.forEach {
+                            it.value.invoke(event.asCustomGuiClickEvent(this@CustomContentsSyncGui))
+                        }
+                    }
+            }
+            override fun onInventoryClose(event: InventoryCloseEvent) {
+                if(isSingleton) { super.onInventoryClose(event) }
+            }
+
+            override fun onPlayerQuit(event: PlayerQuitEvent) {
+                if(isSingleton) { super.onPlayerQuit(event) }
+            }
+        }
+        CustomGuiEventListener.register(listener)
     }
 
     override fun clone(): CustomContentsSyncGui {

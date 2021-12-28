@@ -1,9 +1,10 @@
 package dev.moru3.minepie.nms
 
-import dev.moru3.minepie.nms.NmsUtils.Companion.asBukkitItemStack
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import kotlin.jvm.internal.Intrinsics
+
 
 class NmsUtils {
     companion object {
@@ -29,6 +30,12 @@ class NmsUtils {
             return getCraftBukkitClass("inventory.CraftItemStack")
                 .getMethod("asNMSCopy", ItemStack::class.java)
                 .invoke(null, this)
+        }
+        fun Player.sendPacket(any: Any) {
+            val nmsPlayer: Any = this.asNmsPlayer()
+            val con = nmsPlayer.javaClass.getField("playerConnection")[nmsPlayer]
+            val sendPacket = getNmsClass("PlayerConnection").getMethod("sendPacket", *arrayOf(getNmsClass("Packet")))
+            sendPacket.invoke(con, arrayOf(any))
         }
     }
 }

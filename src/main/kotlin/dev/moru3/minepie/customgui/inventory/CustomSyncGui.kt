@@ -6,9 +6,11 @@ package dev.moru3.minepie.customgui.inventory
 
 import dev.moru3.minepie.customgui.CustomGuiEventListener
 import dev.moru3.minepie.customgui.CustomGuiEvents
+import dev.moru3.minepie.customgui.UniqueInventoryHolder
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -16,7 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * チェストやかまどなどのリアルタイムで反映が必要なGUIに使用できます。
  * 注: 一度作るとリスナーを削除できません。
  */
-class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable: CustomSyncGui.() -> Unit = {}): CustomGui(plugin, title, size) {
+open class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable: CustomSyncGui.() -> Unit = {}): CustomGui(plugin, title, size) {
 
     private val listener: CustomGuiEvents
 
@@ -35,16 +37,19 @@ class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable: Cust
         isSync = true
         runnable.invoke(this)
         listener = object: CustomGuiEvents() {
+            override val uniqueInventoryHolder: UniqueInventoryHolder = this@CustomSyncGui.uniqueInventoryHolder
             override val javaPlugin = plugin
             override fun onInventoryClick(event: InventoryClickEvent) {
-                if(event.view.topInventory==this@CustomSyncGui.asRawInventory()) {
-                    this@CustomSyncGui.actionItems.filter { it.slot==event.slot }
-                        .filter { it.itemStack==event.currentItem }.forEach { actionItem ->
-                            if(!actionItem.isAllowGet) { event.isCancelled = true }
-                            actionItem.getActions().filter { it.key==event.click }.forEach {
-                                it.value.invoke(event.asCustomGuiClickEvent(this@CustomSyncGui))
-                            } }
-                } }
+                this@CustomSyncGui.actionItems.filter { it.slot == event.slot }
+                    .filter { it.itemStack == event.currentItem }.forEach { actionItem ->
+                        if (!actionItem.isAllowGet) {
+                            event.isCancelled = true
+                        }
+                        actionItem.getActions().filter { it.key == event.click }.forEach {
+                            it.value.invoke(event.asCustomGuiClickEvent(this@CustomSyncGui))
+                        }
+                    }
+            }
         }
         CustomGuiEventListener.register(listener)
     }

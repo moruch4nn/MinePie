@@ -10,15 +10,16 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import kotlin.jvm.internal.Intrinsics
 
-class Config(private val plugin: Plugin, private val filename: String) {
+class Config(private val plugin: Plugin, private val configFile: File) {
     private var configuration: FileConfiguration? = null
-    private val configFile: File = File(plugin.dataFolder, filename)
 
-    fun saveDefaultConfig() { if (!configFile.exists()) plugin.saveResource(filename, false) }
+    constructor(plugin: Plugin, filename: String): this(plugin, File(plugin.dataFolder, filename))
+
+    fun saveDefaultConfig() { if (!configFile.exists()) plugin.saveResource(configFile.name, false) }
 
     fun reloadConfig() {
         configuration = YamlConfiguration.loadConfiguration(configFile) as FileConfiguration
-        val defaultConfig = plugin.getResource(filename)
+        val defaultConfig = plugin.getResource(configFile.name)
         configuration?.defaults = YamlConfiguration.loadConfiguration(InputStreamReader(defaultConfig, StandardCharsets.UTF_8)) as Configuration
     }
 

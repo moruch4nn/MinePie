@@ -35,7 +35,7 @@ class NmsUtils {
             val nmsPlayer: Any = this.asNmsPlayer()
             val con = nmsPlayer.javaClass.getField("playerConnection")[nmsPlayer]
             val sendPacket = getNmsClass("PlayerConnection").getMethod("sendPacket", *arrayOf(getNmsClass("Packet")))
-            sendPacket.invoke(con, arrayOf(any))
+            sendPacket.invoke(con, any)
         }
     }
 }

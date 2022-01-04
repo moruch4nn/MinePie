@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
 import java.util.*
 
 /**
@@ -28,6 +29,8 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     private val openInventory = super.asInventory()
     private val openInventoryHolder = openInventory.holder as UniqueInventoryHolder
     private var isSingleton = true
+    private var index: Int = 0
+    private val indexes = mutableListOf<Int>()
 
     var page = 1
         private set
@@ -78,8 +81,8 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     }
 
     private fun update(page: Int? = null) {
-        var index: Int = 0
-        val indexes = mutableListOf<Int>()
+        index = 0
+        indexes.clear()
         for(y in startY..endY) { for(x in startX..endX) {
             if(inventory.getItem(x+(y*9))==null) {
                 indexes.add(x+(y*9))
@@ -142,8 +145,9 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
             override val uniqueInventoryHolder: UniqueInventoryHolder = openInventoryHolder
             override val javaPlugin = plugin
             override fun onInventoryClick(event: InventoryClickEvent) {
-                this@CustomContentsSyncGui.actionItems.filter { it.slot == event.slot }
-                    .filter { it.itemStack == event.currentItem }.forEach { actionItem ->
+                this@CustomContentsSyncGui.actionItems.subList((this@CustomContentsSyncGui.page-1)*index,this@CustomContentsSyncGui.contents.size-1)
+                    .filter { it.itemStack == event.currentItem }
+                    .filter { (it.slot?:event.slot) == event.slot }.forEach { actionItem ->
                         if (!actionItem.isAllowGet) {
                             event.isCancelled = true
                         }

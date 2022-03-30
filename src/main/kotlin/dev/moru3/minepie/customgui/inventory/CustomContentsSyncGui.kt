@@ -33,7 +33,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     private val indexes = mutableListOf<Int>()
 
     var page = 1
-        private set
+        private set(value) { field = maxOf(1,value) }
 
     private var sort: (ActionItem)->Comparable<*>? = SORT_BY_DISPLAY_NAME
 
@@ -63,7 +63,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     }
 
     open fun addContents(itemStack: ItemStack, update: Boolean = true, runnable: ActionItem.() -> Unit = {}): CustomContentsSyncGui {
-        ActionItem(itemStack.clone()).also(contents::add).also(runnable::invoke)
+        actionItems.add(ActionItem(itemStack.clone()).also(contents::add).also(runnable::invoke))
         return this
     }
 
@@ -90,7 +90,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
             }
         } }
         page?.also { this.page = minOf(maxOf(it,1),this.contents.size/index) }
-        val contents = this.contents.subList((this.page-1)*index,this.contents.size-1)
+        val contents = this.contents.subList((this.page-1)*index, maxOf(0,this.contents.size))
         openInventory.contents = inventory.contents
         indexes.forEachIndexed { index2, i ->
             openInventory.setItem(i,contents.getOrNull(index2)?:return@forEachIndexed)
@@ -145,7 +145,9 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
             override val uniqueInventoryHolder: UniqueInventoryHolder = openInventoryHolder
             override val javaPlugin = plugin
             override fun onInventoryClick(event: InventoryClickEvent) {
-                this@CustomContentsSyncGui.actionItems.subList((this@CustomContentsSyncGui.page-1)*index,this@CustomContentsSyncGui.contents.size-1)
+                this@CustomContentsSyncGui.actionItems.subList(maxOf((this@CustomContentsSyncGui.page-1)*index,0),
+                    maxOf(this@CustomContentsSyncGui.contents.size,0)
+                )
                     .filter { it.itemStack == event.currentItem }
                     .filter { (it.slot?:event.slot) == event.slot }.forEach { actionItem ->
                         if (!actionItem.isAllowGet) {
@@ -185,7 +187,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
 
     companion object {
 
-        val SORT_BY_DISPLAY_NAME: (ActionItem)->Comparable<String>? = { it.itemStack.itemMeta.displayName?:it.itemStack.type.toString() }
+        val SORT_BY_DISPLAY_NAME: (ActionItem)->Comparable<String>? = { it.itemStack.itemMeta?.displayName?:it.itemStack.type.toString() }
         val SORT_BY_DATE: (ActionItem)->Comparable<Date>? = { it.addDate }
         val SORT_BY_AMOUNT: (ActionItem)->Comparable<Int>? = {it.itemStack.amount}
 

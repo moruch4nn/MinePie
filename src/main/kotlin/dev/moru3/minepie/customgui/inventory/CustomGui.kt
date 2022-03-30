@@ -22,7 +22,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
 
     protected val closeProcesses = mutableListOf<(InventoryCloseEvent)->Unit>()
 
-    final override val uniqueInventoryHolder: UniqueInventoryHolder = UniqueInventoryHolder(null)
+    final override val uniqueInventoryHolder: UniqueInventoryHolder = UniqueInventoryHolder()
 
     override fun addCloseListener(process: (InventoryCloseEvent) -> Unit) { closeProcesses.add(process) }
 
@@ -80,7 +80,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     }
 
     override fun asInventory(): Inventory {
-        val result = Bukkit.createInventory(UniqueInventoryHolder(null), (size+1)*9, title)
+        val result = Bukkit.createInventory(UniqueInventoryHolder(), (size+1)*9, title)
         result.contents = inventory.contents.map { it?.clone() }.toTypedArray()
         return result
     }

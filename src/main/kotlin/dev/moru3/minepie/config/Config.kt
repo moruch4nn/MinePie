@@ -20,7 +20,7 @@ class Config(private val plugin: Plugin, private val configFile: File) {
     fun reloadConfig() {
         configuration = YamlConfiguration.loadConfiguration(configFile) as FileConfiguration
         val defaultConfig = plugin.getResource(configFile.name)
-        try { configuration?.defaults = YamlConfiguration.loadConfiguration(InputStreamReader(defaultConfig, StandardCharsets.UTF_8)) as Configuration } catch(_: Exception) {}
+        try { configuration?.setDefaults(YamlConfiguration.loadConfiguration(InputStreamReader(defaultConfig, StandardCharsets.UTF_8)) as Configuration) } catch(_: Exception) {}
     }
 
     fun config(): FileConfiguration? {

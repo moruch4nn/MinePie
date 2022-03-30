@@ -38,6 +38,6 @@ class Command(val name: String, val isPlayerOnly: Boolean = false): CommandExecu
 
     init {
         Bukkit.getPluginCommand(name)
-            .also{ it.setExecutor(this) }
+            .also{ it?.setExecutor(this) }
     }
 }

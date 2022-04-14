@@ -43,7 +43,7 @@ interface ICustomGui {
     /**
      * 指定された位置のActionItemを返します。
      */
-    fun getItem(x: Int, y: Int, runnable: ActionItem?.() -> Unit = {}): ActionItem?
+    fun getItem(x: Int, y: Int, runnable: ActionItem.() -> Unit = {}): ActionItem?
 
     /**
      * 今までに設定したCustomGuiをCloneしてorg.bukkit.inventory.Inventoryで返します。

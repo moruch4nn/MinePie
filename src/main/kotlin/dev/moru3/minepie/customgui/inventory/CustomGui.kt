@@ -4,6 +4,7 @@ import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -29,11 +30,9 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
 
 
     override fun clone(): CustomGui {
-        val customGui = CustomGui(plugin, title, size, runnable)
-        for(x in 0..8) {
-            for(y in 0..size) {
-                customGui.setItem(x, y, this.getItem(x, y)?.clone()?:continue)
-            }
+        val customGui = CustomGui(plugin, title, size) { }
+        actionItems.forEach {
+            customGui.setItem(it.slot!!%9,it.slot!!/9,it)
         }
         return customGui
     }
@@ -44,14 +43,19 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         items.map(actionItems::remove)
     }
 
+    override fun removeItem(x: Int, y: Int) {
+        actionItems.removeAll { it.slot==x+(y*9) }
+        inventory.setItem(x+(y*9), null)
+    }
+
     override fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit) {
         if(x !in 0..8) { throw IndexOutOfBoundsException("size is not in the range of (0..8).") }
         if(y !in 0..size) { throw IndexOutOfBoundsException("size is not in the range of (0..$size).") }
         if(actionItem==null) {
-            removeItem(x, y)
+            this.removeItem(x, y)
         } else {
-            val item = actionItem.clone()
-            removeItem(x, y)
+            if(this.getItem(x,y)!=null) { this.removeItem(x,y) }
+            val item = actionItem.copy(x+(y*9))
             actionItems.add(item)
             inventory.setItem(x+(y*9), item.itemStack)
             runnable.invoke(item)
@@ -67,13 +71,8 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         }
     }
 
-    override fun getItem(x: Int, y: Int, runnable: ActionItem?.() -> Unit): ActionItem? {
-        return actionItems.filter { it.slot==x+(y*9) }.let { if(it.isEmpty()) null else it.first() }.also(runnable::invoke)
-    }
-
-    override fun removeItem(x: Int, y: Int) {
-        actionItems.remove(getItem(x, y))
-        inventory.setItem(x+(y*9), null)
+    override fun getItem(x: Int, y: Int, runnable: ActionItem.() -> Unit): ActionItem? {
+        return actionItems.filter { it.slot==x+(y*9) }.getOrNull(0)?.also(runnable::invoke)
     }
 
     override fun asInventory(): Inventory {
@@ -108,7 +107,10 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
             override fun onInventoryClick(event: InventoryClickEvent) {
                 gui.actionItems.filter { it.slot==event.slot }
                     .filter { it.itemStack==event.currentItem }.forEach { actionItem ->
-                        if(!actionItem.isAllowGet) { event.isCancelled = true }
+                        if(!actionItem.isAllowGet) {
+                            event.isCancelled = true
+                            (event.whoClicked as Player).playSound(event.whoClicked.location, actionItem.clickSound,1F,1F)
+                        }
                         actionItem.getActions().filter { it.key==event.click }.forEach {
                             it.value.invoke(event.asCustomGuiClickEvent(gui))
                         }

@@ -1,6 +1,7 @@
 package dev.moru3.minepie.customgui
 
 import dev.moru3.minepie.events.CustomGuiClickEvent
+import org.bukkit.Sound
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 import java.util.*
@@ -13,7 +14,9 @@ open class ActionItem(val itemStack: ItemStack): ItemStack(itemStack) {
     private set
 
     var slot: Int? = null
-    private set
+        private set
+
+    var clickSound: Sound = Sound.UI_BUTTON_CLICK
 
     var isAllowGet = false
 
@@ -38,6 +41,12 @@ open class ActionItem(val itemStack: ItemStack): ItemStack(itemStack) {
 
     override fun clone(): ActionItem {
         val actionItem = ActionItem(itemStack = itemStack.clone(), addDate = addDate, slot = slot, actions = actions)
+        actionItem.isAllowGet = isAllowGet
+        return actionItem
+    }
+
+    fun copy(slot: Int?): ActionItem {
+        val actionItem = ActionItem(itemStack = itemStack.clone(), addDate = addDate, slot = slot?:this.slot, actions = actions)
         actionItem.isAllowGet = isAllowGet
         return actionItem
     }

@@ -7,6 +7,8 @@ package dev.moru3.minepie.customgui
 import dev.moru3.minepie.events.EventRegister
 import dev.moru3.minepie.utils.Utils.Companion.isNull
 import org.bukkit.Bukkit
+import org.bukkit.Sound
+import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent

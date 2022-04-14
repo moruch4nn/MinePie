@@ -44,6 +44,7 @@ open class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable:
                     .filter { it.itemStack == event.currentItem }.forEach { actionItem ->
                         if (!actionItem.isAllowGet) {
                             event.isCancelled = true
+                            (event.whoClicked as Player).playSound(event.whoClicked.location, actionItem.clickSound,1F,1F)
                         }
                         actionItem.getActions().filter { it.key == event.click }.forEach {
                             it.value.invoke(event.asCustomGuiClickEvent(this@CustomSyncGui))
@@ -63,6 +64,10 @@ open class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable:
             return CustomSyncGui(javaPlugin, this.title, this.size, runnable).also {
                 for(x in 0..8) { for(y in 0..this.size) { it.setItem(x, y, this.getItem(x, y)?.clone()) } }
             }
+        }
+
+        fun JavaPlugin.createCustomSyncGui(size: Int, title: String, runnable: CustomGui.() -> Unit = {}): CustomGui {
+            return CustomSyncGui(this, title, size, runnable)
         }
     }
 }

@@ -18,5 +18,11 @@ class Executor {
         fun Plugin.runTaskLaterAsync(delay: Long,consumer: () -> Unit) {
             this.server.scheduler.runTaskLaterAsynchronously(this,consumer,delay)
         }
+        fun Plugin.runTaskTimerAsync(delay: Long, period: Long,consumer: () -> Unit) {
+            this.server.scheduler.runTaskTimerAsynchronously(this, consumer, delay, period)
+        }
+        fun Plugin.runTaskTimer(delay: Long,period: Long,consumer: () -> Unit) {
+            this.server.scheduler.runTaskTimer(this,consumer,delay,period)
+        }
     }
 }

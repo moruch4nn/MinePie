@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021. moru3_48. All Right Reserved.
  */
-
+//test
 package dev.moru3.minepie.utils
 
 class Utils {

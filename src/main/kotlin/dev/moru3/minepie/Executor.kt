@@ -2,27 +2,28 @@ package dev.moru3.minepie
 
 import org.bukkit.conversations.PluginNameConversationPrefix
 import org.bukkit.plugin.Plugin
+import org.bukkit.scheduler.BukkitTask
 import java.util.function.Consumer
 
 class Executor {
     companion object {
-        fun Plugin.runTask(consumer: ()->Unit) {
-            this.server.scheduler.runTask(this,consumer)
+        fun Plugin.runTask(consumer: ()->Unit): BukkitTask {
+            return this.server.scheduler.runTask(this,consumer)
         }
-        fun Plugin.runTaskLater(delay: Long,consumer: () -> Unit) {
-            this.server.scheduler.runTaskLater(this,consumer,delay)
+        fun Plugin.runTaskLater(delay: Long,consumer: () -> Unit): BukkitTask {
+            return this.server.scheduler.runTaskLater(this,consumer,delay)
         }
-        fun Plugin.runTaskAsync(consumer: () -> Unit) {
-            this.server.scheduler.runTaskAsynchronously(this,consumer)
+        fun Plugin.runTaskAsync(consumer: () -> Unit): BukkitTask {
+            return this.server.scheduler.runTaskAsynchronously(this,consumer)
         }
-        fun Plugin.runTaskLaterAsync(delay: Long,consumer: () -> Unit) {
-            this.server.scheduler.runTaskLaterAsynchronously(this,consumer,delay)
+        fun Plugin.runTaskLaterAsync(delay: Long,consumer: () -> Unit): BukkitTask {
+            return this.server.scheduler.runTaskLaterAsynchronously(this,consumer,delay)
         }
-        fun Plugin.runTaskTimerAsync(delay: Long, period: Long,consumer: () -> Unit) {
-            this.server.scheduler.runTaskTimerAsynchronously(this, consumer, delay, period)
+        fun Plugin.runTaskTimerAsync(delay: Long, period: Long,consumer: () -> Unit): BukkitTask {
+            return this.server.scheduler.runTaskTimerAsynchronously(this, consumer, delay, period)
         }
-        fun Plugin.runTaskTimer(delay: Long,period: Long,consumer: () -> Unit) {
-            this.server.scheduler.runTaskTimer(this,consumer,delay,period)
+        fun Plugin.runTaskTimer(delay: Long,period: Long,consumer: () -> Unit): BukkitTask {
+            return this.server.scheduler.runTaskTimer(this,consumer,delay,period)
         }
     }
 }

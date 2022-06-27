@@ -12,9 +12,9 @@ interface CustomMapCanvas {
 
     fun getPixel(x: Int, y: Int): Byte
 
-    fun getPixelByColor(x: Int, y: Int): Color
+    fun getPixelAsColor(x: Int, y: Int): Color
 
-    fun getPixelByArgb(x: Int, y: Int): Int
+    fun getPixelAsArgb(x: Int, y: Int): Int
 
     fun asImage(): BufferedImage
 

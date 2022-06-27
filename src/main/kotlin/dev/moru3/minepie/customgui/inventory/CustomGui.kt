@@ -4,7 +4,6 @@ import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Bukkit
-import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -32,29 +31,29 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     override fun clone(): CustomGui {
         val customGui = CustomGui(plugin, title, size) { }
         actionItems.forEach {
-            customGui.setItem(it.slot!!%9,it.slot!!/9,it)
+            customGui.set(it.slot!!%9,it.slot!!/9,it)
         }
         return customGui
     }
 
-    override fun removeItem(itemStack: ItemStack) {
+    override fun remove(itemStack: ItemStack) {
         val items = actionItems.filter { it.itemStack==itemStack }.run { this.ifEmpty { return } }
         inventory.remove(itemStack)
         items.map(actionItems::remove)
     }
 
-    override fun removeItem(x: Int, y: Int) {
+    override fun remove(x: Int, y: Int) {
         actionItems.removeAll { it.slot==x+(y*9) }
         inventory.setItem(x+(y*9), null)
     }
 
-    override fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit) {
+    override fun set(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit) {
         if(x !in 0..8) { throw IndexOutOfBoundsException("size is not in the range of (0..8).") }
         if(y !in 0..size) { throw IndexOutOfBoundsException("size is not in the range of (0..$size).") }
         if(actionItem==null) {
-            this.removeItem(x, y)
+            this.remove(x, y)
         } else {
-            if(this.getItem(x,y)!=null) { this.removeItem(x,y) }
+            if(this.get(x,y)!=null) { this.remove(x,y) }
             val item = actionItem.copy(x+(y*9))
             actionItems.add(item)
             inventory.setItem(x+(y*9), item.itemStack)
@@ -62,16 +61,16 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         }
     }
 
-    override fun setItem(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit) {
+    override fun set(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit) {
         if(x !in 0..8) { throw IndexOutOfBoundsException("size is not in the range of (0..8).") }
         if(y !in 0..size) { throw IndexOutOfBoundsException("size is not in the range of (0..$size).") }
-        removeItem(x, y)
+        remove(x, y)
         if(itemStack!=null) {
-            setItem(x,y,ActionItem(itemStack, slot = x+(y*9)),runnable)
+            set(x,y,ActionItem(itemStack, slot = x+(y*9)),runnable)
         }
     }
 
-    override fun getItem(x: Int, y: Int, runnable: ActionItem.() -> Unit): ActionItem? {
+    override fun get(x: Int, y: Int, runnable: ActionItem.() -> Unit): ActionItem? {
         return actionItems.filter { it.slot==x+(y*9) }.getOrNull(0)?.also(runnable::invoke)
     }
 
@@ -88,7 +87,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     override fun replace(iCustomGui: ICustomGui) {
         for(x in 0..8) {
             for(y in 0..iCustomGui.size) {
-                iCustomGui.getItem(x, y).also { this.setItem(x, y, it) }
+                iCustomGui.get(x, y).also { this.set(x, y, it) }
             }
         }
     }

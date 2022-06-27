@@ -63,9 +63,9 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
             val content = contents.getOrNull(index2)
             val action = content?.let { this.contents[content] }
             if(action==null) {
-                super.setItem(i%9,i/9, content) { }
+                super.set(i%9,i/9, content) { }
             } else {
-                super.setItem(i%9,i/9, content, action)
+                super.set(i%9,i/9, content, action)
             }
         }
     }
@@ -118,7 +118,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     override fun clone(): CustomContentsSyncGui {
         val customContentsGui = CustomContentsSyncGui(plugin, size, title, startX, startY, endX, endY, runnable)
         for(x in 0..8) { for(y in 0..size) {
-            customContentsGui.setItem(x, y, this.getItem(x, y)?.clone()?:continue)
+            customContentsGui.set(x, y, this.get(x, y)?.clone()?:continue)
         } }
         contents.forEach { customContentsGui.addContents(it.key,false,it.value) }
         return customContentsGui

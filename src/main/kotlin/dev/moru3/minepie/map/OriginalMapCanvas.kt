@@ -27,18 +27,18 @@ class OriginalMapCanvas: CustomMapCanvas {
         return canvas[x+(y*128)]
     }
 
-    override fun getPixelByColor(x: Int, y: Int): Color {
+    override fun getPixelAsColor(x: Int, y: Int): Color {
         return MapPalette.getColor(getPixel(x, y))
     }
 
-    override fun getPixelByArgb(x: Int, y: Int): Int {
-        val color = getPixelByColor(x, y)
+    override fun getPixelAsArgb(x: Int, y: Int): Int {
+        val color = getPixelAsColor(x, y)
         return -0x1000000 or color.red shl 16 and 0x00FF0000 or color.green shl 8 and 0x0000FF00 or color.blue and 0x000000FF
     }
 
     override fun asImage(): BufferedImage {
         return BufferedImage(127, 127, BufferedImage.TYPE_INT_RGB).also {
-            canvas.forEachIndexed { index, byte -> it.setRGB(index%9, index/9, getPixelByArgb(index%9, index/9)) }
+            canvas.forEachIndexed { index, byte -> it.setRGB(index%9, index/9, getPixelAsArgb(index%9, index/9)) }
         }
     }
 

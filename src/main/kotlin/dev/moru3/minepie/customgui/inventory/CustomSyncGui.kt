@@ -10,7 +10,6 @@ import dev.moru3.minepie.customgui.UniqueInventoryHolder
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -62,7 +61,7 @@ open class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable:
         fun CustomGui.asSync(runnable: CustomSyncGui.() -> Unit = {}): CustomSyncGui {
             val javaPlugin = this::class.java.getDeclaredField("plugin").also { it.isAccessible = true }.get(this) as JavaPlugin
             return CustomSyncGui(javaPlugin, this.title, this.size, runnable).also {
-                for(x in 0..8) { for(y in 0..this.size) { it.setItem(x, y, this.getItem(x, y)?.clone()) } }
+                for(x in 0..8) { for(y in 0..this.size) { it.set(x, y, this.get(x, y)?.clone()) } }
             }
         }
 

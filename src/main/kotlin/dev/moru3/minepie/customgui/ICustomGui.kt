@@ -21,29 +21,29 @@ interface ICustomGui {
      * @param limit 削除するアイテムのリミットを設定します。
      * @param sortType アイテムをソートしてから削除します。
      */
-    fun removeItem(itemStack: ItemStack)
+    fun remove(itemStack: ItemStack)
 
     fun addCloseListener(process: (InventoryCloseEvent)->Unit)
 
     /**
      * アイテムを削除します。
      */
-    fun removeItem(x: Int, y: Int)
+    fun remove(x: Int, y: Int)
 
     /**
      * 指定した場所にアイテムを配置します。
      */
-    fun setItem(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit = {})
+    fun set(x: Int, y: Int, itemStack: ItemStack?, runnable: ActionItem.() -> Unit = {})
 
     /**
      * 指定した場所にアクションアイテムを配置します。
      */
-    fun setItem(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit = {})
+    fun set(x: Int, y: Int, actionItem: ActionItem?, runnable: ActionItem.() -> Unit = {})
 
     /**
      * 指定された位置のActionItemを返します。
      */
-    fun getItem(x: Int, y: Int, runnable: ActionItem.() -> Unit = {}): ActionItem?
+    fun get(x: Int, y: Int, runnable: ActionItem.() -> Unit = {}): ActionItem?
 
     /**
      * 今までに設定したCustomGuiをCloneしてorg.bukkit.inventory.Inventoryで返します。

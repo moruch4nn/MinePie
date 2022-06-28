@@ -20,7 +20,8 @@ import java.util.*
  * @param runnable 任意:処理を記述してください
  */
 open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, private val startX: Int, private val startY: Int, private val endX: Int, private val endY: Int, private val runnable: CustomContentsSyncGui.() -> Unit = {}): CustomSyncGui(plugin, title, size) {
-    private val contents = mutableMapOf<ActionItem,ActionItem.()->Unit>()
+    val contents = mutableMapOf<ActionItem,ActionItem.()->Unit>()
+        get() = field.toMutableMap()
     private val bufferInventory = super.asInventory()
     private var isSingleton = true
     private var index: Int = 0

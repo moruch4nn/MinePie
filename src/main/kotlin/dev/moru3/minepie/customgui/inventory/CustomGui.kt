@@ -128,8 +128,8 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
      * initは最後に置いておいてね
      */
     init {
-        if(size !in 0..5) { throw IllegalArgumentException("size is not in the range of (0..5).") }
-        inventory = Bukkit.createInventory(uniqueInventoryHolder, (size+1)*9, title)
+        if(size !in 1..6) { throw IllegalArgumentException("size is not in the range of (1..6).") }
+        inventory = Bukkit.createInventory(uniqueInventoryHolder, (size)*9, title)
         Runnable {
             runnable.invoke(this)
         }.ignoreException()

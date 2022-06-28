@@ -20,7 +20,7 @@ open class ActionItem(val itemStack: ItemStack): ItemStack(itemStack) {
 
     var isAllowGet = false
 
-    fun addAction(clickType: ClickType, runnable: (CustomGuiClickEvent)->Unit) {
+    fun action(clickType: ClickType, runnable: (CustomGuiClickEvent)->Unit) {
         actions[clickType] = runnable
     }
 

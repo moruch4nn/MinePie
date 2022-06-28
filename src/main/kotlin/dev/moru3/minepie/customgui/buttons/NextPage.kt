@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack
 class NextPage(customContentsGui: CustomContentsSyncGui, item: ItemStack = EasyItem(Material.ARROW, "${ChatColor.GREEN}次のページ")): ActionItem(item) {
     init {
         this.isAllowGet = false
-        addAction(ClickType.LEFT) {
+        action(ClickType.LEFT) {
             customContentsGui
         }
     }

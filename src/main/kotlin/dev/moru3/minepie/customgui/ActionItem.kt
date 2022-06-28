@@ -20,8 +20,10 @@ open class ActionItem(val itemStack: ItemStack): ItemStack(itemStack) {
 
     var isAllowGet = false
 
-    fun action(clickType: ClickType, runnable: (CustomGuiClickEvent)->Unit) {
-        actions[clickType] = runnable
+    fun action(vararg clickType: ClickType, runnable: (CustomGuiClickEvent)->Unit) {
+        clickType.forEach {
+            actions[it] = runnable
+        }
     }
 
     fun getActions(): Map<ClickType, (CustomGuiClickEvent)->Unit> {

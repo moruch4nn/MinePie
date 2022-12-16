@@ -34,7 +34,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
     private var sort: (ActionItem)->Comparable<*>? = SORT_BY_DISPLAY_NAME
 
     open fun addContents(itemStack: ItemStack, update: Boolean = false, runnable: ActionItem.() -> Unit = {}): CustomContentsSyncGui {
-        addContents(ActionItem(itemStack),update,runnable)
+        addContents(ActionItem(uniqueTagKey,itemStack),update,runnable)
         return this
     }
 

@@ -39,8 +39,7 @@ open class CustomSyncGui(plugin: JavaPlugin, title: String, size: Int, runnable:
             override val uniqueInventoryHolder: UniqueInventoryHolder = this@CustomSyncGui.uniqueInventoryHolder
             override val javaPlugin = plugin
             override fun onInventoryClick(event: InventoryClickEvent) {
-                this@CustomSyncGui.actionItems.filter { it.slot == event.slot }
-                    .filter { it.itemStack == event.currentItem }.forEach { actionItem ->
+                this@CustomSyncGui.actionItems.filter { it.isSimilarTag(event.currentItem) }.forEach { actionItem ->
                         if (!actionItem.isAllowGet) {
                             event.isCancelled = true
                             (event.whoClicked as Player).playSound(event.whoClicked.location, actionItem.clickSound,1F,1F)

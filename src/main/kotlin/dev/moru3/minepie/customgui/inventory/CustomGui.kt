@@ -4,6 +4,7 @@ import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
 import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Bukkit
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -11,10 +12,13 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.UUID
 
 open class CustomGui(protected val plugin: JavaPlugin, final override val title: String, final override val size: Int, private val runnable: CustomGui.() -> Unit = {}) : ICustomGui, Listener {
     final override var isSync: Boolean = false
     protected set
+
+    final override val uniqueTagKey: NamespacedKey = NamespacedKey(plugin, "CustomGui.${UUID.randomUUID()}")
 
     protected val inventory: Inventory
 
@@ -66,7 +70,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
         if(y !in 0..size) { throw IndexOutOfBoundsException("size is not in the range of (0..$size).") }
         remove(x, y)
         if(itemStack!=null) {
-            set(x,y,ActionItem(itemStack, slot = x+(y*9)),runnable)
+            set(x,y,ActionItem(uniqueTagKey = uniqueTagKey,itemStack, slot = x+(y*9)),runnable)
         }
     }
 
@@ -104,8 +108,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
             override val javaPlugin = plugin
             override val uniqueInventoryHolder: UniqueInventoryHolder = gui.uniqueInventoryHolder
             override fun onInventoryClick(event: InventoryClickEvent) {
-                gui.actionItems.filter { it.slot==event.slot }
-                    .filter { it.itemStack==event.currentItem }.forEach { actionItem ->
+                gui.actionItems.filter { it.isSimilarTag(event.currentItem) }.forEach { actionItem ->
                         if(!actionItem.isAllowGet) {
                             event.isCancelled = true
                             (event.whoClicked as Player).playSound(event.whoClicked.location, actionItem.clickSound,1F,1F)

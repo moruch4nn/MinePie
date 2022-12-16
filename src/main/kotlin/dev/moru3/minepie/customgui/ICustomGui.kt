@@ -1,5 +1,6 @@
 package dev.moru3.minepie.customgui
 
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
@@ -13,6 +14,8 @@ interface ICustomGui {
     val uniqueInventoryHolder: UniqueInventoryHolder
 
     val isSync: Boolean
+
+    val uniqueTagKey: NamespacedKey
 
     /**
      * setItemで追加したアイテムを削除します。

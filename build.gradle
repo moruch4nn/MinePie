@@ -14,8 +14,6 @@ repositories {
 
 dependencies {
     compileOnly "org.bukkit:bukkit:1.15.2-R0.1-SNAPSHOT"
-    compileOnly group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
-
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.5.31'
 }
 

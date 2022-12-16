@@ -12,7 +12,7 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.ItemStack
 
-class NextPage(customContentsGui: CustomContentsSyncGui, item: ItemStack = EasyItem(Material.ARROW, "${ChatColor.GREEN}次のページ")): ActionItem(item) {
+class NextPage(customContentsGui: CustomContentsSyncGui, item: ItemStack = EasyItem(Material.ARROW, "${ChatColor.GREEN}次のページ")): ActionItem(customContentsGui.uniqueTagKey,item) {
     init {
         this.isAllowGet = false
         action(ClickType.LEFT) {

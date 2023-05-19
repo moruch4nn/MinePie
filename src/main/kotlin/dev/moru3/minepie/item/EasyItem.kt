@@ -16,11 +16,13 @@ open class EasyItem(
     lore: List<String> = listOf(),
     itemFlags: Set<ItemFlag> = setOf(),
     enchantments: Map<Enchantment, Int> = mapOf(),
-    lorePrefix: String? = ChatColor.GRAY.toString()
+    lorePrefix: String? = ChatColor.GRAY.toString(),
+    customModelData: Int = 0,
 ) : ItemStack(material) {
     init {
         this.itemMeta = this.itemMeta?.also { itemMeta ->
             displayName?.also(itemMeta::setDisplayName)
+            itemMeta.setCustomModelData(customModelData)
             itemMeta.lore = lore.map { "${lorePrefix?:""}${it}" }
             itemFlags.forEach(itemMeta::addItemFlags)
             enchantments.forEach { itemMeta.addEnchant(it.key, it.value, true) }

@@ -7,6 +7,13 @@ import java.util.function.Consumer
 
 class Executor {
     companion object {
+        fun Plugin.loop(delay: Long,period: Long,count: Long,consumer: ()->Unit): BukkitTask {
+            var c = 0L
+            return this.runTaskTimer(0,period) {
+                consumer.invoke()
+                c++
+            }
+        }
         fun Plugin.runTask(consumer: ()->Unit): BukkitTask {
             return this.server.scheduler.runTask(this,consumer)
         }

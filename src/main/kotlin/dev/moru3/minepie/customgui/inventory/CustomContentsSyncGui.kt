@@ -2,7 +2,6 @@ package dev.moru3.minepie.customgui.inventory
 
 import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.item.EasyItem
-import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -130,7 +129,7 @@ open class CustomContentsSyncGui(plugin: JavaPlugin, size: Int, title: String, p
      * initは最後に置いておいてね
      */
     init {
-        Runnable { runnable.invoke(this) }.ignoreException()
+        runnable.invoke(this)
     }
 
     companion object {

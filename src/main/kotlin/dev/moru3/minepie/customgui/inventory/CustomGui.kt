@@ -2,7 +2,6 @@ package dev.moru3.minepie.customgui.inventory
 
 import dev.moru3.minepie.customgui.*
 import dev.moru3.minepie.events.CustomGuiClickEvent.Companion.asCustomGuiClickEvent
-import dev.moru3.minepie.utils.IgnoreRunnable.Companion.ignoreException
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -12,7 +11,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.UUID
+import java.util.*
 
 open class CustomGui(protected val plugin: JavaPlugin, final override val title: String, final override val size: Int, private val runnable: CustomGui.() -> Unit = {}) : ICustomGui, Listener {
     final override var isSync: Boolean = false
@@ -133,9 +132,7 @@ open class CustomGui(protected val plugin: JavaPlugin, final override val title:
     init {
         if(size !in 1..6) { throw IllegalArgumentException("size is not in the range of (1..6).") }
         inventory = Bukkit.createInventory(uniqueInventoryHolder, (size)*9, title)
-        Runnable {
-            runnable.invoke(this)
-        }.ignoreException()
+        runnable.invoke(this)
     }
 
     companion object {
